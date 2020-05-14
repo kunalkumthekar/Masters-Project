@@ -157,20 +157,20 @@ def decode_netout(netout, anchors, img_w, img_h, nb_class, obj_threshold=0.8, nm
 #     ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
 #     return ap
 
-def _interval_overlap(interval_a, interval_b): # never called during training
-    x1, x2 = interval_a
-    x3, x4 = interval_b
+# def _interval_overlap(interval_a, interval_b): # never called during training
+#     x1, x2 = interval_a
+#     x3, x4 = interval_b
 
-    if x3 < x1:
-        if x4 < x1:
-            return 0
-        else:
-            return min(x2,x4) - x1
-    else:
-        if x2 < x3:
-             return 0
-        else:
-            return min(x2,x4) - x3
+#     if x3 < x1:
+#         if x4 < x1:
+#             return 0
+#         else:
+#             return min(x2,x4) - x1
+#     else:
+        # if x2 < x3:
+        #      return 0
+        # else:
+            # return min(x2,x4) - x3
 
 def _sigmoid(x):
     return 1. / (1. + np.exp(-x))
