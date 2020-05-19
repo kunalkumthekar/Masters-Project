@@ -64,6 +64,23 @@ def draw_kpp(image, g_wdt, g_hgt, kpps, labels,cls_threshold=0.8):
     return image
 
 def decode_netout(netout, anchors, img_w, img_h, nb_class, obj_threshold=0.8, nms_threshold=0.25):
+    """[summary]
+
+    Arguments:
+        netout {[type]} -- [description]
+        anchors {[type]} -- [description]
+        img_w {[type]} -- [description]
+        img_h {[type]} -- [description]
+        nb_class {[type]} -- [description]
+
+    Keyword Arguments:
+        obj_threshold {float} -- [description] (default: {0.8})
+        nms_threshold {float} -- [description] (default: {0.25})
+
+    Returns:
+        [type] -- [description]
+    """
+    
     grid_h, grid_w, nb_kpp = netout.shape[:3]
 
     kpps = []
@@ -71,8 +88,8 @@ def decode_netout(netout, anchors, img_w, img_h, nb_class, obj_threshold=0.8, nm
     # decode output from network
     #netout[..., :2]  = _sigmoid(netout[..., :2])
     #netout[..., 2]  = _sigmoid(netout[..., 2])
-    netout[..., 3]  = _sigmoid(netout[..., 3])
-    netout[..., 4:] = netout[..., 3][..., np.newaxis] * _softmax(netout[..., 4:])
+    netout[..., 3]  = _sigmoid(netout[..., 3]) # 4th element from the last dimension[confidence](i.e. the dimesion of length 5(x,y,alpha,conf,class)) is  chosen and then sigmoid function is applied to it
+    netout[..., 4:] = netout[..., 3][..., np.newaxis] * _softmax(netout[..., 4:])#?
     #netout[..., 4:] *= netout[..., 4:] > obj_threshold
 
     for row in range(grid_h):
@@ -173,9 +190,11 @@ def decode_netout(netout, anchors, img_w, img_h, nb_class, obj_threshold=0.8, nm
             # return min(x2,x4) - x3
 
 def _sigmoid(x):
+
     return 1. / (1. + np.exp(-x))
 
 def _softmax(x, axis=-1, t=-100.):
+
     x = x - np.max(x)
 
     if np.min(x) < t:

@@ -15,7 +15,6 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard #to make
 import keras
 import sys
 import matplotlib.pyplot as plt
-#import threading
 
 class SpecialYOLO(object):
     def __init__(self, input_width,
@@ -53,11 +52,6 @@ class SpecialYOLO(object):
 
         # stack 2
         for i in range(0,2):  #(0,2)
-            #x = Conv2D(32*(2**i), (3,3), strides=(1,1), padding='same', name='conv_' + str(num_layer), use_bias=False)(x)  #32
-            #x = BatchNormalization(name='norm_' + str(num_layer))(x)
-            #x = LeakyReLU(alpha=0.1)(x)
-            #num_layer += 1
-
             x = Conv2D(32*(2**i), (3,3), strides=(1,1), padding='same', name='conv_' + str(num_layer), use_bias=False)(x)  #32
             x = BatchNormalization(name='norm_' + str(num_layer))(x)
             x = LeakyReLU(alpha=0.1)(x)
@@ -101,6 +95,7 @@ class SpecialYOLO(object):
         self.model = Model(inputs=input_image, outputs=output)
 
         # print a summary of the whole model
+        tf.compat.v1.keras.utils.plot_model(self.model, to_file='model.png', show_shapes=True, show_layer_names=True,rankdir='TB')
         self.model.summary(positions=[.25, .60, .80, 1.]) # just printing the model with a diff position parameter than default
         tf.logging.set_verbosity(tf.logging.INFO)  ## v1 Logging and summary of just the info part and not the errors or warnings
         
@@ -409,6 +404,14 @@ class SpecialYOLO(object):
 
 
     def predict(self, image):
+        """[summary]
+
+        Arguments:
+            image {[Tesnor]} -- [A 3D tensor/matrix representing the image in color channel]
+
+        Returns:
+            [type] -- [description]
+        """
         print("image.shape=",image.shape)
         image_h, image_w, image_color_depth  = image.shape
         #image = cv2.resize(image, (self.input_width, self.input_height))
@@ -422,13 +425,14 @@ class SpecialYOLO(object):
         # print("\n")
         ###debug ends###
         
-        input_image = image[:,:,::-1] #flip rgb to bgr or vice versa
-
+        input_image = image[:,:,::-1] #flip rgb to bgr or vice versa  # refer temp.py # seems to mirror/flip the image rather than flipping the values in 3rd dimension
+        # the above expression can be deemed unneccessary since only one colour channel is passed through
+        
         input_image = np.expand_dims(input_image, 0)
         #dummy_array = np.zeros((1,1,1,1,self.max_kpp_per_image,4))
 
-        # netout = self.model.predict([input_image])# add dummy_array
-        netout = self.model.predict([input_image])[0]# add dummy_array
+        #netout = self.model.predict([input_image])# add dummy_array
+        netout = self.model.predict([input_image])[0]# add dummy_array # Why?
 
         print( "netout=", [netout] )  # print the netout
 
