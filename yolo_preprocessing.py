@@ -14,6 +14,14 @@ import math
 
 #[] used if we want to index out the elements, {} used as order doesnt matter
 def read_annotations(img_dir):
+    """[summary]
+
+    Arguments:
+        img_dir {[type]} -- [description]
+
+    Returns:
+        [type] -- [description]
+    """
     all_imgs = [] #creating empty box of list of arrays where images would be later stored in
     seen_labels = {} #labels would be soon appended in this empty dict list
 
@@ -65,7 +73,7 @@ class YoloBatchGenerator(Sequence):
                        norm=None):
         self.generator = None
 
-        self.images = images
+        self.images = images # images and the returned variable all_imgs from the above method are similar
         self.config = config
 
         self.shuffle = shuffle
@@ -134,7 +142,13 @@ class YoloBatchGenerator(Sequence):
         if shuffle: np.random.shuffle(self.images)
 
     def __len__(self):  #never called anywhere
-        return int(np.ceil(float(len(self.images))/self.config['BATCH_SIZE']))
+        """[summary]
+
+        Returns:
+            [type] -- [description]
+        """
+        # return int(np.ceil(float(len(self.images))/self.config['BATCH_SIZE']))
+        return int(np.ceil(len(self.images)/self.config['BATCH_SIZE'])) #removed unneccessary datatype conversion
 
     def num_classes(self): #
         return len(self.config['LABELS'])

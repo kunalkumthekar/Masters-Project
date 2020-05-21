@@ -66,16 +66,24 @@
 
 # math = np.expand_dims(mat,0)
 
-# print(math.shape)
-import numpy as np
+# # print(math.shape)
+# import numpy as np
 
-# arr = np.array([[[1, 2, 3, 4], [5, 6, 7, 8]]])
+# # arr = np.array([[[1, 2, 3, 4], [5, 6, 7, 8]]])
 
-# print(arr.shape)
+# # print(arr.shape)
 
-d = np.array([[[i + 2*j + 8*k for i in range(3)] for j in range(3)] for k in range(3)])
-print(d.shape)
-print("\n")
-print(d)
-print("\n")
-print(d[...,0])
+# d = np.array([[[i + 2*j + 8*k for i in range(3)] for j in range(3)] for k in range(3)])
+# print(d.shape)
+# print("\n")
+# print(d)
+# print("\n")
+# print(d[...,0])
+
+def yieldPrac(self):
+    for i in range (10):
+        x = 1 
+        yield print("The value of x {}".format(x))
+        x = x+i
+
+yieldPrac()
