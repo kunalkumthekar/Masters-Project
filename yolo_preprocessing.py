@@ -147,8 +147,7 @@ class YoloBatchGenerator(Sequence):
         Returns:
             [type] -- [description]
         """
-        # return int(np.ceil(float(len(self.images))/self.config['BATCH_SIZE']))
-        return int(np.ceil(len(self.images)/self.config['BATCH_SIZE'])) #removed unneccessary datatype conversion
+        return int(np.ceil(float(len(self.images))/self.config['BATCH_SIZE']))
 
     def num_classes(self): #
         return len(self.config['LABELS'])
