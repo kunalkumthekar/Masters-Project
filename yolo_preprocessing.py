@@ -71,6 +71,8 @@ class YoloBatchGenerator(Sequence):
                        shuffle=True,
                        jitter=True,
                        norm=None):
+
+        print("***YoloBatchGenerator Called***")
         self.generator = None
 
         self.images = images # images and the returned variable all_imgs from the above method are similar
@@ -80,6 +82,14 @@ class YoloBatchGenerator(Sequence):
         self.jitter  = jitter
         self.norm    = norm
         self.image_counter = 0
+
+        # for debugging
+        print("\n Length of images before augmentation: \t")
+        lengthBeforeAug = len(self.images)
+        print(lengthBeforeAug)
+        
+        # end of debugging
+
 
         ia.seed( 1 )
 
@@ -140,36 +150,69 @@ class YoloBatchGenerator(Sequence):
         )
 
         if shuffle: np.random.shuffle(self.images)
+        # for debugging
+        print("\n Length of images after augmentation: \t")
+        lengthAfterAug = len(self.images)
+        print(lengthAfterAug)
+        
+        # end of debugging
 
-    def __len__(self):  #never called anywhere
-        """[summary]
+    def __len__(self): 
+        """[Divides the length of total number of images available by the 
+            the batch size and returns the value as an integer.
+            Any float value obtained by division is rounded down.
+            The default len() method calls object.__len__
+            eg: called upon in generating warmup_batches in yolo_frontend]
+            [For further explanation, refer :https://www.programiz.com/python-programming/methods/built-in/len]
 
         Returns:
-            [type] -- [description]
+            [int] -- [nb_imgs/batch_size]
         """
         return int(np.ceil(float(len(self.images))/self.config['BATCH_SIZE']))
 
-    def num_classes(self): #
+    def num_classes(self): 
+        """return the length of element labels defined in the config.json file
+        which is nothing but list of 1 element i.e 0
+
+        Returns:
+            [int] -- [length of the list called LABELS]
+        """
         return len(self.config['LABELS'])
 
     def size(self):
         return len(self.images)
 
-    def load_annotation(self, i):
-        annots = []
+    # def load_annotation(self, i):
+    #     """[summary]
 
-        for obj in self.images[i]['object']:
-            annot = [obj['x0'], obj['y0'], obj['x1'], obj['y1'], self.config['LABELS'].index(obj['name'])]
-            annots += [annot]
+    #     Arguments:
+    #         i {[type]} -- [description]
 
-        if len(annots) == 0: annots = [[]]
+    #     Returns:
+    #         [type] -- [description]
+    #     """
+    #     annots = []
 
-        return np.array(annots)
+    #     for obj in self.images[i]['object']:
+    #         annot = [obj['x0'], obj['y0'], obj['x1'], obj['y1'], self.config['LABELS'].index(obj['name'])]
+    #         annots += [annot]
 
-    def load_image(self, i):
-        return cv2.imread(self.images[i]['filename'])
+    #     if len(annots) == 0: annots = [[]]
+
+    #     return np.array(annots)
+
+    # def load_image(self, i):        
+    #     return cv2.imread(self.images[i]['filename'])
 
     def __getitem__(self, idx):  # liefert einen kompletten batch(Get a complete batch)
+        """https://www.geeksforgeeks.org/__getitem__-and-__setitem__-in-python/
+
+        Arguments:
+            idx {[type]} -- [description]
+
+        Returns:
+            [type] -- [description]
+        """
         l_bound = idx*self.config['BATCH_SIZE']
         r_bound = (idx+1)*self.config['BATCH_SIZE']
 

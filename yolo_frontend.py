@@ -330,6 +330,13 @@ class SpecialYOLO(object):
                                      norm=self.normalize,
                                      jitter=False)
 
+        #Debug starts
+
+        print("Length of train generator: \t", len(train_generator))
+        print("\nLength of valid generator: \t", len(valid_generator))
+
+        #Debug ends
+
         self.warmup_batches  = warmup_epochs * (train_times*len(train_generator) + valid_times*len(valid_generator)) #declaring the warmup_batches as a function of warmup_epochs
 
         ############################################
@@ -394,10 +401,10 @@ class SpecialYOLO(object):
         #         print("\t")
         # print("\n")
         ###debug ends###
-        input("Press Enter to continue...")
+        # input("Press Enter to continue...")
 
-        self.predict(image)
-        print( "test prediction end\n" )
+        # self.predict(image)
+        # print( "test prediction end\n" )
         ##### test prediction ende ######################
 
 
