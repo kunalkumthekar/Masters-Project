@@ -331,7 +331,7 @@ class SpecialYOLO(object):
                                      jitter=False)
 
         #Debug starts
-
+        # train_generator[0]   = train_generator.__getitem__(0)
         print("Length of train generator: \t", len(train_generator))
         print("\nLength of valid generator: \t", len(valid_generator))
 

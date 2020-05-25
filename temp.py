@@ -80,10 +80,21 @@
 # print("\n")
 # print(d[...,0])
 
-def yieldPrac(self):
-    for i in range (10):
-        x = 1 
-        yield print("The value of x {}".format(x))
-        x = x+i
+# def yieldPrac(self):
+#     for i in range (10):
+#         x = 1 
+#         yield print("The value of x {}".format(x))
+#         x = x+i
 
-yieldPrac()
+# yieldPrac()
+
+class Dog(object):
+    def __init__(self,name):
+        print (name)
+    def bark(self,permit=True):
+        print("Woof Woof")
+
+Dobermann = Dog("Mahen")
+animal_call = Dobermann.bark(True)
+animal_call
+animal_call
