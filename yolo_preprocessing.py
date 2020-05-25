@@ -5,7 +5,6 @@ import copy
 import numpy as np
 import imgaug as ia
 from imgaug import augmenters as iaa
-import imgaug as ia
 from keras.utils import Sequence
 import xml.etree.ElementTree as ET
 import matplotlib.pyplot as plt
@@ -154,7 +153,7 @@ class YoloBatchGenerator(Sequence):
         print("\n Length of images after augmentation: \t")
         lengthAfterAug = len(self.images)
         print(lengthAfterAug)
-        
+        ##
         # end of debugging
 
     def __len__(self): 
@@ -206,15 +205,18 @@ class YoloBatchGenerator(Sequence):
 
     def __getitem__(self, idx):  # liefert einen kompletten batch(Get a complete batch)
         """https://www.geeksforgeeks.org/__getitem__-and-__setitem__-in-python/
+        https://stackoverflow.com/questions/43627405/understanding-getitem-method/43627975
 
         Arguments:
-            idx {[type]} -- [description]
+            idx {[int]} -- [describes the position of the batch from the batches of images which are
+            passed into training per epoch]
 
         Returns:
-            [type] -- [description]
+            [type] -- [batches of image data and labels]
         """
-        l_bound = idx*self.config['BATCH_SIZE']
-        r_bound = (idx+1)*self.config['BATCH_SIZE']
+        # list[lower_boundary:upper_boundary]
+        l_bound = idx*self.config['BATCH_SIZE']  #lower boundary of the index range  eg: if idx(position of batch=0) then lower boundary=0*16=0
+        r_bound = (idx+1)*self.config['BATCH_SIZE']  #upper boundary of index range
 
 
         best_anchor = 0
@@ -224,13 +226,14 @@ class YoloBatchGenerator(Sequence):
         # <batchsize> <BOX == nb_box == len( anchors )//2>, <for each box 4*keypoint pairs +  1*confidency + one-hot labels> == desired network output tensor
         y_batch = np.zeros((r_bound - l_bound, self.config['GRID_H'],  self.config['GRID_W'], self.config['KPP'], 3+1+len(self.config['LABELS'])))
 
-        i_img = 0
+        # i_img = 0
         keypoints_on_images = [] # contains all keypoints in the image, ready for augmentation
         images_batch = []
 
         #keypoints-list aufbauen
         num_images = len( self.images )
         instance_src_index = l_bound % num_images
+        
         for instance_count in range( r_bound - l_bound ):
             train_instance = self.images[instance_src_index]
             # augment input image and fix object's position and size
@@ -251,10 +254,11 @@ class YoloBatchGenerator(Sequence):
                 keypoints_on_image.append( ia.Keypoint( x=float(obj['x1']), y=float(obj['y1']) ))
 
             keypoints_on_images.append(ia.KeypointsOnImage(keypoints_on_image, shape=img.shape ))
-            instance_src_index = (instance_src_index + 1) % num_images
+            # instance_src_index = (instance_src_index + 1) % num_images
+            instance_src_index += 1
 
         if self.jitter:
-            ia.seed( 134 )
+            ia.seed( 134 )      
             aug_pipe_det = self.aug_pipe.to_deterministic() # so that the augmentation of the images and the keypoints effect the same transformations
             x_batch = aug_pipe_det.augment_images(images_batch) # augmented images
             keypoints_batch_aug = aug_pipe_det.augment_keypoints( keypoints_on_images )  # augmented keypoints
@@ -287,11 +291,7 @@ class YoloBatchGenerator(Sequence):
                     dx = kp1_x - kp0_x
                     dy = kp1_y - kp0_y
 
-                    alpha = math.atan2( dy, dx )
-                    if alpha < 0.0:
-                        alpha = alpha + math.pi
-
-                    alpha = alpha/math.pi*0.8 + 0.1  # match to 0.1...0.9
+                    alpha = self.alphaAngle(dy, dx)  # match to 0.1...0.9
 
                     # Determine the grid cell to which the keypoint belongs.
                     grid_x = int(np.floor(kp0_x))  #these are the grid coordinates, e.g. in the 4x4 grid into which the image is divided
@@ -321,6 +321,14 @@ class YoloBatchGenerator(Sequence):
 
 
         return x_batch, y_batch   #image normalized and y_batch in grid coordinates
+
+    def alphaAngle(self, dy, dx):
+        alpha = math.atan2( dy, dx )
+        if alpha < 0.0:
+            alpha = alpha + math.pi
+
+        alpha = alpha/math.pi*0.8 + 0.1  # match to 0.1...0.9
+        return alpha
 
     def on_epoch_end(self):
         if self.shuffle: np.random.shuffle(self.images)  #shuffle along the first axis only
