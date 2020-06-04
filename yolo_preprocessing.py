@@ -80,7 +80,7 @@ class YoloBatchGenerator(Sequence):
         self.shuffle = shuffle
         self.jitter  = jitter
         self.norm    = norm
-        self.image_counter = 0
+        # self.image_counter = 0
 
         # for debugging
         print("\n Length of images before augmentation: \t")
@@ -247,13 +247,13 @@ class YoloBatchGenerator(Sequence):
             # construct output from object's x, y, w, h
             true_kpp_index = 0
 
-            keypoints_on_image = []
+            keypoints_on_one_image = []
             all_objs = train_instance['object']
             for obj in all_objs:
-                keypoints_on_image.append( ia.Keypoint( x=float(obj['x0']), y=float(obj['y0']) ))
-                keypoints_on_image.append( ia.Keypoint( x=float(obj['x1']), y=float(obj['y1']) ))
+                keypoints_on_one_image.append( ia.Keypoint( x=float(obj['x0']), y=float(obj['y0']) ))
+                keypoints_on_one_image.append( ia.Keypoint( x=float(obj['x1']), y=float(obj['y1']) ))
 
-            keypoints_on_images.append(ia.KeypointsOnImage(keypoints_on_image, shape=img.shape ))
+            keypoints_on_images.append(ia.KeypointsOnImage(keypoints_on_one_image, shape=img.shape ))
             # instance_src_index = (instance_src_index + 1) % num_images
             instance_src_index += 1
 
@@ -272,14 +272,15 @@ class YoloBatchGenerator(Sequence):
         # enter augmented keypoints in y_batch
         num_images = len( self.images )
         instance_src_index = l_bound % num_images
-        for instance_count in range( r_bound - l_bound ):
+        for instance_count in range( r_bound - l_bound ):  # each loop is for one image
             train_instance = self.images[instance_src_index]
             all_objs = train_instance['object']
             obj_count = 0
-            for obj in all_objs:
+            for obj in all_objs:    # each loop is for one part/shaft in the image
                 if obj['name'] in self.config['LABELS']:
-                    kp0_x = keypoints_batch_aug[instance_count].keypoints[obj_count*2].x
-                    kp0_x = kp0_x / (float(self.config['IMAGE_W']) / self.config['GRID_W'])
+
+                    kp0_x = keypoints_batch_aug[instance_count].keypoints[obj_count*2].x        # object_KeyPointsOnImage.list_
+                    kp0_x = kp0_x / (float(self.config['IMAGE_W']) / self.config['GRID_W'])     # convert pixel coordinate values to grid coordinate values eg. x = 128 is converted to 16 in grid coordinates
                     kp0_y = keypoints_batch_aug[instance_count].keypoints[obj_count*2].y
                     kp0_y = kp0_y / (float(self.config['IMAGE_H']) / self.config['GRID_H'])
 
@@ -287,6 +288,7 @@ class YoloBatchGenerator(Sequence):
                     kp1_x = kp1_x / (float(self.config['IMAGE_W']) / self.config['GRID_W'])
                     kp1_y = keypoints_batch_aug[instance_count].keypoints[obj_count*2+1].y
                     kp1_y = kp1_y / (float(self.config['IMAGE_H']) / self.config['GRID_H'])
+                    
 
                     dx = kp1_x - kp0_x
                     dy = kp1_y - kp0_y
@@ -314,7 +316,7 @@ class YoloBatchGenerator(Sequence):
                         true_kpp_index = true_kpp_index % self.config['TRUE_KPP_BUFFER']   #avoid overflow
 
 
-                        self.image_counter += 1
+                        # self.image_counter += 1
 
                     obj_count += 1
             instance_src_index = (instance_src_index + 1) % num_images

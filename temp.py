@@ -88,13 +88,39 @@
 
 # yieldPrac()
 
-class Dog(object):
-    def __init__(self,name):
-        print (name)
-    def bark(self,permit=True):
-        print("Woof Woof")
+class PooPooHead():
+    def __init__(self):
+        self.say = "get the fuck out!"
 
-Dobermann = Dog("Mahen")
-animal_call = Dobermann.bark(True)
-animal_call
-animal_call
+class Dog(object):
+    """Sample Class for practice
+
+    Arguments:
+        object {[type]} -- [description]
+    """
+
+    def __init__(self, name):
+        sayIt = PooPooHead();
+        self.sample_list = [sayIt, 23, 1, 35, 41, 1123, 4123]
+        print(name)
+
+    def bark(self, permit=True):
+        """sample method
+
+        Keyword Arguments:
+            permit {bool} -- [permission to bark, captain@] (default: {True})
+        """
+        if permit:
+            print("Woof Woof")
+
+
+def main():
+    """Main method
+    """
+
+    dobermann = Dog("Mahen")
+    print(dobermann.sample_list[0].say)
+    dobermann.bark(permit=True)
+
+
+main()
