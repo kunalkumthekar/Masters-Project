@@ -39,7 +39,7 @@
 # b = np.zeros((100, 100,3))
 # b[:,:,1] = 255
 
-# c = np.zeros((100, 200,3)) 
+# c = np.zeros((100, 200,3))
 # c[:,:,2] = 255
 
 # # img = np.vstack((c, np.hstack((a, b))))
@@ -82,15 +82,17 @@
 
 # def yieldPrac(self):
 #     for i in range (10):
-#         x = 1 
+#         x = 1
 #         yield print("The value of x {}".format(x))
 #         x = x+i
 
 # yieldPrac()
 
-class PooPooHead():
+
+class PooPooHead:
     def __init__(self):
         self.say = "get the fuck out!"
+
 
 class Dog(object):
     """Sample Class for practice
@@ -100,7 +102,7 @@ class Dog(object):
     """
 
     def __init__(self, name):
-        sayIt = PooPooHead();
+        sayIt = PooPooHead()
         self.sample_list = [sayIt, 23, 1, 35, 41, 1123, 4123]
         print(name)
 
@@ -124,3 +126,5 @@ def main():
 
 
 main()
+
+## test
