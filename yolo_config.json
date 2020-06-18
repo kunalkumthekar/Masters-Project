@@ -9,10 +9,10 @@
     },
 
   "train": {
-    "train_image_folder": "G:\\Shaft_Program_Files\\train\\",
-    "train_annot_folder": "G:\\Shaft_Program_Files\\train\\",
+    "train_image_folder": "G:\\Shaft_Program_Files\\Shafts\\train\\",
+    "train_annot_folder": "G:\\Shaft_Program_Files\\Shafts\\train\\",
     "train_times": 10,
-    "pretrained_weights": "transparent.h5",
+    "pretrained_weights": "shaft.h5",
     "batch_size": 16,
     "learning_rate": 1e-3,
     "nb_epochs": 1,
@@ -24,13 +24,13 @@
     "class_scale": 1.0,
     "direction_scale" : 10.0,
 
-    "saved_weights_name": "transparent.h5",
+    "saved_weights_name": "shaft.h5",
     "debug": true
   },
 
     "valid": {
-        "valid_image_folder":   "G:\\Shaft_Program_Files\\valid\\",
-        "valid_annot_folder":   "G:\\Shaft_Program_Files\\valid\\",
+        "valid_image_folder":   "G:\\Shaft_Program_Files\\Shafts\\valid\\",
+        "valid_annot_folder":   "G:\\Shaft_Program_Files\\Shafts\\valid\\",
 
         "valid_times":          1
     }
