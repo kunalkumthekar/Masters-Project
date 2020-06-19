@@ -33,16 +33,15 @@
     "no_object_scale": 1.0,
     "coord_scale": 1.0,
     "class_scale": 1.0,
-    "direction_scale" : 10.0,
-
+    "direction_scale": 10.0,
+    "obj_edge_vis_thresh": 0.50, // Specifiy the threshold for shaft edge visibility 
+    "obj_side_vis_thresh": 0.50, // Specifiy the threshold for shaft sides visibility 
     "saved_weights_name": "shaft.h5",
     "debug": true
   },
-
-    "valid": {
-        "valid_image_folder":   "G:\\Shaft_Program_Files\\Shafts\\valid\\",
-        "valid_annot_folder":   "G:\\Shaft_Program_Files\\Shafts\\valid\\",
-
-        "valid_times":          1
-    }
+  "valid": {
+    "valid_image_folder": "G:\\Shaft_Program_Files\\Shafts\\valid\\",
+    "valid_annot_folder": "G:\\Shaft_Program_Files\\Shafts\\valid\\",
+    "valid_times": 1
+  }
 }
