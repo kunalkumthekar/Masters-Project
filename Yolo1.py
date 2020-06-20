@@ -88,7 +88,7 @@ def _main_(args):
     #   Start the training process
     ###############################
 
-    yolo.train(
+    model_hist = yolo.train(
         train_imgs=train_imgs,
         valid_imgs=valid_imgs,
         train_times=config["train"]["train_times"],
@@ -106,10 +106,14 @@ def _main_(args):
         debug=config["train"]["debug"],
     )
 
+    return model_hist
+
 
 if __name__ == "__main__":
     args = argparser.parse_args()
     # testein
     args.conf = "yolo_config.json"
 
-    _main_(args)
+    model_hist = _main_(args)
+
+    print(model_hist.keys())
