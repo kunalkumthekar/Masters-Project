@@ -266,21 +266,18 @@ class SpecialYOLO(object):
         """
         ### coordinate mask: simply the position of the ground truth boxes (the predictors)
         # this is the confidence for each keypoint pair, multiplied by the coord_scale. A dimension is appended to this.
-        coord_mask = (
-            tf.expand_dims(y_true[..., 3], axis=-1) * self.coord_scale
-        )  # tf.expand_dims simply changes the dimension shape at the end(axis=-1)-> (x0,y0,x1,y1,confidence,nb_anchors)
+        coord_mask = tf.expand_dims(y_true[..., 3], axis=-1) * self.coord_scale
+        # tf.expand_dims simply changes the dimension shape at the end(axis=-1)-> (x0,y0,x1,y1,confidence,nb_anchors)
         # At the end conf_mask set all elements to no_object_scale or to object_scale. #### both of them represented in the .json file
         # penalize the confidence difference of all keypoints which are farer away from true keypoints
         print(coord_mask.shape)
-        conf_mask = (
-            conf_mask + 1.0
-        )  # all set to 1 which were previously just an array of zeros(tf.zeros) set in the masking sections
+        conf_mask = conf_mask + 1.0
+        # all set to 1 which were previously just an array of zeros(tf.zeros) set in the masking sections
         # conf_mask.shape==(nb_batches, nb_grid_x, nb_grid_y, nb_anchors)
 
         # penalize the confidence difference of all keypoints which are reponsible for corresponding ground truth keypoint0
-        conf_mask = (
-            conf_mask + y_true[..., 3] * self.object_scale
-        )  # set the cells containing keypoints to 6 [prev conf.mask was set to 1...now confmask is added to nb_anchor and multiplied by 5(i.e object_sclae), this sets it to 6]
+        conf_mask = conf_mask + y_true[..., 3] * self.object_scale
+        # set the cells containing keypoints to 6 [prev conf.mask was set to 1...now confmask is added to nb_anchor and multiplied by 5(i.e object_sclae), this sets it to 6]
 
         ### class mask: simply the position of the ground truth boxes (the predictors)
         class_mask = (
@@ -335,12 +332,14 @@ class SpecialYOLO(object):
             )
             / (nb_coord_kpp + 1e-6)
             / 2.0
-        )  # direction.scale from .json
+        )
+        # direction.scale from .json
         loss_conf = (
             tf.reduce_sum(tf.square(true_kpp_conf - pred_kpp_conf) * conf_mask)
             / (nb_conf_kpp + 1e-6)
             / 2.0
-        )  # 1e-6 is just a small number which is used so that if nb_conf_kpp is 0, the fraction should not get invalid output
+        )
+        # 1e-6 is just a small number which is used so that if nb_conf_kpp is 0, the fraction should not get invalid output
 
         # test
         # class_mask_expanded = tf.expand_dims( class_mask, -1)
