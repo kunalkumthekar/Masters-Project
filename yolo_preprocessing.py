@@ -60,7 +60,9 @@ def read_annotations(img_dir, edge_threshold, side_threshold):
                 # absolute path of the image file for the current annotation file being read, is stored as a string in img['filename']
                 # where img is a dictionary
 
-                if (edge_threshold < vWords[5]) and (side_threshold < vWords[6]):
+                if (edge_threshold < float(vWords[5])) and (
+                    side_threshold < float(vWords[6])
+                ):
 
                     obj["name"] = vWords[0]
                     # in the empty obj dict a class name is created.
