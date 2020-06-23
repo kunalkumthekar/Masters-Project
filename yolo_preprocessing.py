@@ -82,7 +82,7 @@ def read_annotations(img_dir, edge_threshold, side_threshold):
                     obj["y0"] = float(vWords[2])
                     # y0
 
-                    obj["alpha"] = float(vWords[3])
+                    angle_alpha = float(vWords[3])
 
                     # obj['x1'] = float( vWords[3] )
                     # x1
