@@ -83,12 +83,12 @@ def read_annotations(img_dir, edge_threshold, side_threshold):
                     # y0
 
                     angle_alpha = float(vWords[3])
+                    alpha_deg = np.rad2deg(angle_alpha)
+                    slope = math.tan(alpha_deg)
+                    length = 10
 
-                    # obj['x1'] = float( vWords[3] )
-                    # x1
-
-                    # obj['y1'] = float( vWords[4] )
-                    # y1
+                    obj["x1"] = obj["x0"] + math.sqrt(length ** 2 / (1 + slope ** 2))
+                    obj["y1"] = (slope * (obj["x1"] - obj["x0"])) + obj["y0"]
 
                     # zu diesem img das keypoint-pair
                     # The dict called obj is stored in the list called object, which is appended with a new dict instance of obj for every iteration of the loop
@@ -257,54 +257,9 @@ class YoloBatchGenerator(Sequence):
     def size(self):
         return len(self.images)
 
-    #
-    #
-    #
-    #
-    #
-    # Marked for cleaning
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-    #
-
-    # def load_annotation(self, i):
-
-    #     """[summary]
-
-    #     Arguments:
-
-    #         i {[type]} -- [description]
-
-    #     Returns:
-
-    #         [type] -- [description]
-
-    #     """
-
-    #     annots = []
-
-    #     for obj in self.images[i]['object']:
-
-    #         annot = [obj['x0'], obj['y0'], obj['x1'], obj['y1'], self.config['LABELS'].index(obj['name'])]
-
-    #         annots += [annot]
-
-    #     if len(annots) == 0: annots = [[]]
-
-    #     return np.array(annots)
-
-    # def load_image(self, i):
-
-    #     return cv2.imread(self.images[i]['filename'])
-
     def __getitem__(self, idx):
         # liefert einen kompletten batch(Get a complete batch)
+
         """https://www.geeksforgeeks.org/__getitem__-and-__setitem__-in-python/
         https://stackoverflow.com/questions/43627405/understanding-getitem-method/43627975
 
@@ -379,8 +334,7 @@ class YoloBatchGenerator(Sequence):
                 ia.KeypointsOnImage(keypoints_on_one_image, shape=img.shape)
             )
 
-            # instance_src_index = (instance_src_index + 1) % num_images
-            instance_src_index += 1
+            instance_src_index = (instance_src_index + 1) % num_images
 
         if self.jitter:
             ia.seed(134)
