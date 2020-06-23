@@ -95,9 +95,9 @@ def read_annotations(img_dir, edge_threshold, side_threshold):
                     img["object"] += [obj]
 
                     # the list called object is in itself stored as a key-value pair within a dictionary called img. the dict img contains two elements {'object', 'filename(abs path to img file)'}
-                    file.close()
                 else:
                     print("Shaft was not considered for training \n")
+            file.close()
 
             if len(img["object"]) > 0:
                 # if the object dict is no longer empty then store all the string of data stored in img, in list of all_imgs
@@ -507,26 +507,3 @@ class YoloBatchGenerator(Sequence):
 
 
 # shuffle along the first axis only
-
-
-# def edgeVisibile(__edge_visibility):
-
-#     if __edge_visibility < edge_threshold_val:
-
-#         return False
-
-#     else:
-
-#         return True
-
-
-# def sideVisible(__side_visibility):
-
-
-#     if __side_visibility < side_threshold_val:
-
-#         return False
-
-#     else:
-
-#         return True
