@@ -534,7 +534,7 @@ class SpecialYOLO(object):
 
         print("test prediction start\n")
         image = cv2.imread(
-            "D:\\Master Project\\github\\kk\\Masters-Project\\Img_000000.bmp"
+            "D:\\Master Project\\github\\kk\\Masters-Project\\Img_000205.bmp"
         )
         # just a sample test image
         image = image[:, :, 0]

@@ -15,3 +15,5 @@ yolo_config.json
 shaft.h5
 __pycache__/yolo_preprocessing.cpython-36.pyc
 Img_000000.bmp
+Img_000000_detected.bmp
+Img_000205.bmp
