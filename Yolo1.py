@@ -1,10 +1,15 @@
 import argparse
 import os
 import numpy as np
+
+os.chdir("../")
+
+print(os.getcwd())
 from yolo_preprocessing import read_annotations
 from yolo_frontend import SpecialYOLO
 import json
 import sys
+
 
 # run with command line -c yolo_config.json
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
