@@ -43,8 +43,8 @@ def _main_(args):
     )
     valid_imgs, valid_labels = read_annotations(
         config["valid"]["valid_image_folder"],
-        config["train"]["obj_edge_vis_thresh"],
-        config["train"]["obj_edge_side_thresh"],
+        config["valid"]["obj_edge_vis_thresh"],
+        config["valid"]["obj_edge_side_thresh"],
     )
 
     # print( "train_imgs= ", train_imgs ,"\n")

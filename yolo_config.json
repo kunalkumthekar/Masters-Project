@@ -21,8 +21,8 @@
     ]
   },
   "train": {
-    "train_image_folder": "D:\\Master Project\\github\\kk\\Masters-Project\\Shaft_Dataset\\train\\",
-    "train_annot_folder": "D:\\Master Project\\github\\kk\\Masters-Project\\Shaft_Dataset\\train\\",
+    "train_image_folder": "D:\\Master Project\\github\\kk\\Masters-Project\\data\\shafts\\likith\\Shafts_radians\\train\\",
+    "train_annot_folder": "D:\\Master Project\\github\\kk\\Masters-Project\\data\\shafts\\likith\\Shafts_radians\\train\\",
     "train_times": 10,
     "pretrained_weights": "shaft.h5",
     "batch_size": 16,
@@ -40,8 +40,8 @@
     "debug": true
   },
   "valid": {
-    "valid_image_folder": "D:\\Master Project\\github\\kk\\Masters-Project\\Shaft_Dataset\\valid\\",
-    "valid_annot_folder": "D:\\Master Project\\github\\kk\\Masters-Project\\Shaft_Dataset\\valid\\",
+    "valid_image_folder": "D:\\Master Project\\github\\kk\\Masters-Project\\data\\shafts\\likith\\Shafts_radians\\valid\\",
+    "valid_annot_folder": "D:\\Master Project\\github\\kk\\Masters-Project\\data\\shafts\\likith\\Shafts_radians\\valid\\",
     "valid_times": 1
   }
 }
