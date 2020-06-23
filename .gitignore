@@ -12,3 +12,5 @@ __pycache__/yolo_preprocessing.cpython-37.pyc
 __pycache__/yolo_utils.cpython-36.pyc
 yolo_config.json
 .vscode/settings.json
+shaft.h5
+__pycache__/yolo_preprocessing.cpython-36.pyc

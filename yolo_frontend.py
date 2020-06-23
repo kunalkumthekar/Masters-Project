@@ -425,7 +425,7 @@ class SpecialYOLO(object):
         coord_scale,  # .json output
         class_scale,  # .json output
         direction_scale,  # .json output
-        saved_weights_name="transparent.h5",
+        saved_weights_name="shaft.h5",
         debug=False,
     ):
 
@@ -533,47 +533,25 @@ class SpecialYOLO(object):
         ##### test prediction ###########################
 
         print("test prediction start\n")
-        image = cv2.imread("G:\\Shaft_Program_Files\\valid\\Img_000256.bmp")
+        image = cv2.imread(
+            "D:\\Master Project\\github\\kk\\Masters-Project\\Img_000000.bmp"
+        )
         # just a sample test image
         image = image[:, :, 0]
         # blue channel only # [dim_1 == img_width (length 128), dim_2 == img_height(length 128), dim_3 == colour channel(length 3)]  [128, 128, 3]
         image = np.expand_dims(image, -1)
-        # image = self.normalize(image)  # normalising the image (1st time)
-        ###debug starts###
-        # for dim1 in range(128):
-        #     for dim2 in range(128):
-        #         print(image[dim1,dim2,0])
-        #         print("\t")
-        # print("\n")
-        ###debug ends###
-        # input("Press Enter to continue...")
 
         self.predict(image)
         print("test prediction end\n")
         ##### test prediction ende ######################
 
     def predict(self, image):
-        """[summary]
 
-        Arguments:
-            image {[Tesnor]} -- [A 3D tensor/matrix representing the image in color channel]
-
-        Returns:
-            [type] -- [description]
-        """
         print("image.shape=", image.shape)
         image_h, image_w, image_color_depth = image.shape
         # image = cv2.resize(image, (self.input_width, self.input_height))
         image = self.normalize(image)
         # dividing the entire color depth(0-255) by 255. to get it into form (0-1)
-        #####we are normalising the already normalised image.
-        ###debug starts###
-        # for dim1 in range(128):
-        #     for dim2 in range(128):
-        #         print(image[dim1,dim2,0])
-        #         print("\t")
-        # print("\n")
-        ###debug ends###
 
         input_image = image[:, :, ::-1]
         # flip rgb to bgr or vice versa  # refer temp.py # seems to mirror/flip the image rather than flipping the values in 3rd dimension
