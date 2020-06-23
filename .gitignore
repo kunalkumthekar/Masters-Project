@@ -542,3 +542,4 @@ __pycache__/yolo_frontend.cpython-36.pyc
 __pycache__/yolo_preprocessing.cpython-36.pyc
 __pycache__/yolo_preprocessing.cpython-37.pyc
 __pycache__/yolo_utils.cpython-36.pyc
+yolo_config.json
