@@ -488,7 +488,7 @@ class SpecialYOLO(object):
         early_stop = EarlyStopping(
             monitor="val_loss",  # used to monitor validation_loss and helps in stopping the training val_loss doesnt reduce for more than 2/3 epochs
             min_delta=0.001,
-            patience=3,  # 2or3
+            patience=30,  # 2or3
             mode="min",
             verbose=1,
         )
