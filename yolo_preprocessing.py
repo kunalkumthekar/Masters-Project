@@ -82,13 +82,16 @@ def read_annotations(img_dir, edge_threshold, side_threshold):
                     obj["y0"] = float(vWords[2])
                     # y0
 
-                    angle_alpha = float(vWords[3])
-                    alpha_deg = np.rad2deg(angle_alpha)
-                    slope = math.tan(alpha_deg)
-                    length = 10
+                    angle_alpha = (math.pi) - float(vWords[3])
+                    # alpha_deg = np.rad2deg(angle_alpha)
+                    # slope = math.tan(alpha_deg)
+                    # length = 10
 
-                    obj["x1"] = obj["x0"] + math.sqrt(length ** 2 / (1 + slope ** 2))
-                    obj["y1"] = (slope * (obj["x1"] - obj["x0"])) + obj["y0"]
+                    # obj["x1"] = obj["x0"] + math.sqrt(length ** 2 / (1 + slope ** 2))
+                    # obj["y1"] = (slope * (obj["x1"] - obj["x0"])) + obj["y0"]
+
+                    obj["x1"] = float(obj["x0"] - 20.0 * math.cos(angle_alpha))
+                    obj["y1"] = float(obj["y0"] - 20.0 * math.sin(angle_alpha))
 
                     # zu diesem img das keypoint-pair
                     # The dict called obj is stored in the list called object, which is appended with a new dict instance of obj for every iteration of the loop
@@ -96,7 +99,7 @@ def read_annotations(img_dir, edge_threshold, side_threshold):
 
                     # the list called object is in itself stored as a key-value pair within a dictionary called img. the dict img contains two elements {'object', 'filename(abs path to img file)'}
                 else:
-                    print("Shaft was not considered for training \n")
+                    print("Shaft \t", line, "was not considered for training \n")
             file.close()
 
             if len(img["object"]) > 0:
