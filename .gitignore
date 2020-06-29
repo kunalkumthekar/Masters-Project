@@ -22,3 +22,7 @@ Img_000270.bmp
 Img_000272.bmp
 Img_000272_detected.bmp
 shaft.h5full
+Img_264_detected.bmp
+Img_264.bmp
+__pycache__/yolo_frontend.cpython-37.pyc
+__pycache__/yolo_utils.cpython-37.pyc
