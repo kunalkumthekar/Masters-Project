@@ -150,16 +150,16 @@ class SpecialYOLO(object):
         self.model = Model(inputs=input_image, outputs=output)
 
         # print a summary of the whole model
-        tf.compat.v1.keras.utils.plot_model(
-            self.model,
-            to_file="model.png",
-            show_shapes=True,
-            show_layer_names=True,
-            rankdir="TB",
-        )
+        # tf.compat.v1.keras.utils.plot_model(
+        #     self.model,
+        #     to_file="model.png",
+        #     show_shapes=True,
+        #     show_layer_names=True,
+        #     rankdir="TB",
+        # )
         self.model.summary(positions=[0.25, 0.60, 0.80, 1.0])
         # just printing the model with a diff position parameter than default
-        tf.logging.set_verbosity(tf.logging.INFO)
+        # tf.logging.set_verbosity(tf.logging.INFO)
         ## v1 Logging and summary of just the info part and not the errors or warnings
 
     def custom_loss(self, y_true, y_pred):
@@ -170,19 +170,20 @@ class SpecialYOLO(object):
 
         # netout must be in image_width and image_height units, i.e. in the interval [0...1]
 
-        mask_shape = tf.shape(y_true)[
-            :4
-        ]  # for mask_shape [:4] represents:= (batch_size(:0), nb_grid_x(:1), nb_grid_y(:2), nb_anchors(:3))
+        mask_shape = tf.shape(y_true)[:4]
+        # for mask_shape [:4] represents:= (batch_size(:0), nb_grid_x(:1), nb_grid_y(:2), nb_anchors(:3))
 
         # cell_x and cell_y then contain their respective x and y coordinates for each grid_cell as lookup coordinates
-        cell_x = tf.to_float(
+        cell_x = tf.cast(
             tf.reshape(
                 tf.tile(tf.range(self.grid_w), [self.grid_h]),
                 (1, self.grid_h, self.grid_w, 1, 1),
-            )
-        )  # v1 .to.float depracated use tf.cast for v2
+            ),
+            dtype=float
+        )
+        # v1 .to.float depracated use tf.cast for v2
         # creating transpose of cell_x to create cell_y
-        cell_y = tf.to_float(
+        cell_y = tf.cast(
             tf.reshape(
                 tf.transpose(
                     tf.reshape(
@@ -191,7 +192,8 @@ class SpecialYOLO(object):
                     )
                 ),
                 (1, self.grid_h, self.grid_w, 1, 1),
-            )
+            ),
+            dtype=float
         )
         print(cell_x.shape)
         print(cell_y.shape)
@@ -294,9 +296,9 @@ class SpecialYOLO(object):
         Once the training through warmup batches are done, the  elements in the coord_mask are once again set to their original values.
         This is done so that interest for loss computation is only shown at datapoints where we expect the keypoint coordinates to be.
         """
-        no_kpp_mask = tf.to_float(coord_mask < self.coord_scale / 2.0)  # ??
+        no_kpp_mask = tf.cast((coord_mask < self.coord_scale / 2.0), dtype=float)  # ??
         print(no_kpp_mask.shape)
-        seen = tf.assign_add(seen, 1.0)
+        seen = seen + 1.0
         # tf.cond is a conditional function that passes first lambda function if tf.less() statement is true, else passes the second lambda function if tf.less() is  false
         # "tf.less(seen, self.warmup_batches+1)":== passes the truth table for seen<self.warmup.batches+1 (i.e if arg_x less than arg_y then true and so on...)
         # warmup_batches is defined below
@@ -314,9 +316,9 @@ class SpecialYOLO(object):
         """
         # tf.reduce_sum adds the elements of arrays passed. As in our case no axis is passed as an argument, the function will return a single int as output
         # syntax below simply gives the length of the respective masks by adding all of their elements and redicing the, to single integer as output
-        nb_coord_kpp = tf.reduce_sum(tf.to_float(coord_mask > 0.0))
-        nb_conf_kpp = tf.reduce_sum(tf.to_float(conf_mask > 0.0))
-        nb_class_kpp = tf.reduce_sum(tf.to_float(class_mask > 0.0))
+        nb_coord_kpp = tf.reduce_sum(tf.cast(coord_mask > 0.0), dtype=float)
+        nb_conf_kpp = tf.reduce_sum(tf.cast(conf_mask > 0.0), dtype=float)
+        nb_class_kpp = tf.reduce_sum(tf.cast(class_mask > 0.0), dtype=float)
         # summing up the elements of the array which are squared element wise with the help of tf.square 1e-6) / 2.
         # (true_kp0_xy-pred_kp0_xy) * coord_mask):== basically computes loss in first part and then confirms the presence by multiplying the mask on the diff
         # tf.square makes the diff in the true and predicted values directionless as direction is of no concern for us
@@ -369,34 +371,33 @@ class SpecialYOLO(object):
         if self.debug:  # debug puts out an boolean output true/false
             nb_true_kpp = tf.reduce_sum(y_true[..., 3])
             nb_pred_kpp = tf.reduce_sum(
-                tf.to_float(true_kpp_conf > 0.5) * tf.to_float(pred_kpp_conf > 0.3)
+                tf.cast((true_kpp_conf > 0.5), dtype=float)
+                * tf.cast((pred_kpp_conf > 0.3), dtype=float)
             )
 
             current_recall = nb_pred_kpp / (nb_true_kpp + 1e-6)
             # tf.assign_add(ref,add) which is explained in the next line
-            total_recall = tf.assign_add(
-                total_recall, current_recall
-            )  # it simply updates ref=total_recall and adds value=current_recall to it
+            total_recall = total_recall + current_recall
+            # it simply updates ref=total_recall and adds value=current_recall to it
             # now we print all the losses
-            loss = tf.Print(
-                loss, [loss_kp0_xy], message="Loss Keyp0 \t", summarize=1000
-            )
-            loss = tf.Print(loss, [loss_alpha], message="Loss alpha \t", summarize=1000)
-            loss = tf.Print(loss, [loss_conf], message="Loss Conf \t", summarize=1000)
-            loss = tf.Print(loss, [loss_class], message="Loss Class \t", summarize=1000)
-            loss = tf.Print(loss, [loss], message="Total Loss \t", summarize=1000)
-            loss = tf.Print(
-                loss, [current_recall], message="Current Recall \t", summarize=1000
-            )
-            loss = tf.Print(
-                loss, [total_recall / seen], message="Average Recall \t", summarize=1000
-            )
+            # loss = tf.Print(
+            #     loss, [loss_kp0_xy], message="Loss Keyp0 \t", summarize=1000
+            # )
+            # loss = tf.Print(loss, [loss_alpha], message="Loss alpha \t", summarize=1000)
+            # loss = tf.Print(loss, [loss_conf], message="Loss Conf \t", summarize=1000)
+            # loss = tf.Print(loss, [loss_class], message="Loss Class \t", summarize=1000)
+            # loss = tf.Print(loss, [loss], message="Total Loss \t", summarize=1000)
+            # loss = tf.Print(
+            #     loss, [current_recall], message="Current Recall \t", summarize=1000
+            # )
+            # loss = tf.Print(
+            #     loss, [total_recall / seen], message="Average Recall \t", summarize=1000
+            # )
 
         return loss
 
-    def load_weights(
-        self, weight_path
-    ):  # this function is used to call the weights path which later called upon by yolo_predict file
+    def load_weights(self, weight_path):
+        # this function is used to call the weights path which later called upon by yolo_predict file
         self.model.load_weights(weight_path)
         self.model.save(weight_path + "full")
 
@@ -513,7 +514,7 @@ class SpecialYOLO(object):
         # Start the training process
         ############################################
 
-        self.model.fit_generator(
+        self.model.fit(
             generator=train_generator,
             steps_per_epoch=len(train_generator) * train_times,
             epochs=warmup_epochs + nb_epochs,  # 3+30 by default
