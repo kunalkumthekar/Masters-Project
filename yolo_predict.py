@@ -2,7 +2,7 @@ import argparse
 import os
 import cv2
 import numpy as np
-from tqdm import tqdm  # not used anywhere
+# from tqdm import tqdm  # not used anywhere
 from yolo_preprocessing import read_annotations
 from yolo_utils import draw_kpp
 from yolo_frontend import SpecialYOLO
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     # testein
     args.conf = "yolo_config.json"
-    args.input = "D:\\Master Project\\github\\kk\\Masters-Project\\Img_000272.bmp"
+    args.input = "E:\\CNN_Subteam_Kunal_Vinoth\\data\\Img_000269.bmp"
     args.weights = "shaft.h5"
 
     _main_(args)

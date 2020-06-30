@@ -294,12 +294,12 @@ class SpecialYOLO(object):
         # ??
         print(no_kpp_mask.shape)
         # seen = seen + 1.0
-        seen += 1.0
+        # seen += 1.0
         # tf.cond is a conditional function that passes first lambda function if tf.less() statement is true, else passes the second lambda function if tf.less() is  false
         # "tf.less(seen, self.warmup_batches+1)":== passes the truth table for seen<self.warmup.batches+1 (i.e if arg_x less than arg_y then true and so on...)
         # warmup_batches is defined below
         true_kp0_xy, coord_mask = tf.cond(
-            tf.less(seen, self.warmup_batches + 1),
+            tf.math.less(seen, self.warmup_batches + 1),
             lambda: [
                 true_kp0_xy + (0.5 + cell_grid) * no_kpp_mask,
                 tf.ones_like(coord_mask),
@@ -355,10 +355,10 @@ class SpecialYOLO(object):
 
         # tf.less() is the pred; lambda1:true statement passed; lambda2:false statement passed
         loss = tf.cond(
-            tf.less(seen, self.warmup_batches + 1),
+            tf.math.less(seen, self.warmup_batches + 1),
+            lambda: loss_kp0_xy + loss_alpha + loss_conf + loss_class,
             lambda: loss_kp0_xy + loss_alpha + loss_conf + loss_class + 10,
             # Adding bias as 10     #bias of 10 is added so that the activation function(leaky relu which limits till 10)is always activated
-            lambda: loss_kp0_xy + loss_alpha + loss_conf + loss_class,
         )
 
         if self.debug:  # debug puts out an boolean output true/false
@@ -528,7 +528,7 @@ class SpecialYOLO(object):
 
         print("test prediction start\n")
         image = cv2.imread(
-            "D:\\Master Project\\github\\kk\\Masters-Project\\Img_000205.bmp"
+            "E:\CNN_Subteam_Kunal_Vinoth\data\Img_000269.bmp"
         )
         # just a sample test image
         image = image[:, :, 0]
