@@ -50,17 +50,16 @@ class SpecialYOLO(object):
         ##########################
         # Make the model
         ##########################
-
         # make the feature extractor layers
-        input_image = Input(
-            shape=(self.input_height, self.input_width, 1)
-        )  # declaring the input image shape by input function, required for building conv layer, 1:=B&W
+        input_image = Input(shape=(self.input_height, self.input_width, 1))
+        # declaring the input image shape by input function, required for building conv layer, 1:=B&W
 
         num_layer = 0
         # intial layers assigned as 0
 
         # stack 1
 
+        # 16 kernels of 3x3 size
         x = Conv2D(
             16,
             (3, 3),
@@ -69,7 +68,6 @@ class SpecialYOLO(object):
             name="conv_" + str(num_layer),
             use_bias=False,
         )(input_image)
-        # 16 kernels of 3x3 size
         x = BatchNormalization(name="norm_" + str(num_layer))(x)
         x = LeakyReLU(alpha=0.1)(x)
         x = MaxPooling2D(pool_size=(2, 2))(x)
@@ -104,6 +102,8 @@ class SpecialYOLO(object):
             x = LeakyReLU(alpha=0.1)(x)
             num_layer += 1
 
+        # 3:= x,y coord, angle between 2 points of kp
+        # 1:=1confidence of object in grid cell
         x = Conv2D(
             3 + 1 + self.nb_class,
             (3, 3),
@@ -112,19 +112,17 @@ class SpecialYOLO(object):
             name="conv_" + str(num_layer),
             use_bias=False,
         )(x)
-        # 3:= x,y coord, angle between 2 points of kp
         x = BatchNormalization(name="norm_" + str(num_layer))(x)
-        # 1:=1confidence of object in grid cell
         x = LeakyReLU(alpha=0.1)(x)
         num_layer += 1
 
         # make the object detection layer
+        # (x,y,alpha+conf+no.of classes) #nb_classes are one hot encoded
+        # in this case (1,1) kernel is used which tightens up the possibility of probaibility extraction)
         output = Conv2D(
             self.nb_kpp * (3 + 1 + self.nb_class),
-            # (x,y,alpha+conf+no.of classes) #nb_classes are one hot encoded
             (1, 1),
             strides=(1, 1,),
-            # in this case (1,1) kernel is used which tightens up the possibility of probaibility extraction)
             padding="same",
             name="DetectionLayer",
             kernel_initializer="lecun_normal",
@@ -179,7 +177,7 @@ class SpecialYOLO(object):
                 tf.tile(tf.range(self.grid_w), [self.grid_h]),
                 (1, self.grid_h, self.grid_w, 1, 1),
             ),
-            dtype=float
+            dtype=tf.float32,
         )
         # v1 .to.float depracated use tf.cast for v2
         # creating transpose of cell_x to create cell_y
@@ -193,7 +191,7 @@ class SpecialYOLO(object):
                 ),
                 (1, self.grid_h, self.grid_w, 1, 1),
             ),
-            dtype=float
+            dtype=tf.float32,
         )
         print(cell_x.shape)
         print(cell_y.shape)
@@ -209,40 +207,36 @@ class SpecialYOLO(object):
         # simply creating a grid of concatenated (cellx,celly) and y_pred.shape
         # Intialize masks with 0
         # main motive of adding masks is to add 2 additional arrays to represent id an i/p or o/p is actually present
-        coord_mask = tf.zeros(
-            mask_shape, dtype="float32"
-        )  # used to locate the coordinates of the keypoints
-        conf_mask = tf.zeros(
-            mask_shape, dtype="float32"
-        )  # Used to tell the confidence of the located keypoints
-        class_mask = tf.zeros(
-            mask_shape, dtype="float32"
-        )  # Used to identify the class of the object
+        coord_mask = tf.zeros(mask_shape, dtype="float32")
+        # used to locate the coordinates of the keypoints
+        conf_mask = tf.zeros(mask_shape, dtype="float32")
+        # Used to tell the confidence of the located keypoints
+        class_mask = tf.zeros(mask_shape, dtype="float32")
+        # Used to identify the class of the object
 
         # These two variables used for Visualisation process later on
-        seen = tf.Variable(0.0, dtype="float32")
-        total_recall = tf.Variable(0.0, dtype="float32")
+
+        # seen = tf.Variable(0.0, dtype="float32")
+        # total_recall = tf.Variable(0.0, dtype="float32")
+        total_recall = 0.0
 
         """
         Adjust prediction
         """
         ### adjust predicted keypoint pair coordinates
         ##True Position is identified by addition of grid_coordinate+cell coordinate (Truue_position=GCS+CCS)
-        pred_kp0_xy = (
-            tf.sigmoid(y_pred[..., :2]) + cell_grid
-        )  # transform to grid coordinates, predicted keypoint0 grid coordinates are the first two elements in last dimension (x0,y0)
+        pred_kp0_xy = tf.sigmoid(y_pred[..., :2]) + cell_grid
+        # transform to grid coordinates, predicted keypoint0 grid coordinates are the first two elements in last dimension (x0,y0)
 
-        pred_alpha = y_pred[
-            ..., 2:3
-        ]  # predicted keypoint1 grid coordinates are the elements 2 to 3 in last dimension thats angle between (x1,y1)
+        pred_alpha = y_pred[..., 2:3]
+        # predicted keypoint1 grid coordinates are the elements 2 to 3 in last dimension thats angle between (x1,y1)
 
         ### adjust (=limit to [0...1]) predicted confidence           #could use softmax???
         pred_kpp_conf = tf.sigmoid(y_pred[..., 3])  # predicted keypoint pair confidence
 
         ### adjust predicted class probabilities
-        pred_kpp_class = y_pred[
-            ..., 4:
-        ]  # one or more classes starting with element 5 in last dimension
+        pred_kpp_class = y_pred[..., 4:]
+        # one or more classes starting with element 5 in last dimension
 
         """
         Adjust ground truth
@@ -257,9 +251,8 @@ class SpecialYOLO(object):
         ### i.e. the shape of the result vector determines the argmax of the lowest dimension. The lowest dimension is removed from the shape.
         ### Here Shape of the result vector: (nb_batches, grid_x, grid_y, nb_kpp ), where the last dimension contains the respective argmax (here always 1)
         true_kpp_class = y_true[..., 4:]
-        true_kpp_class_argmax = tf.argmax(
-            y_true[..., 4:], -1
-        )  # axis=-1 represents the last axis (last element of the array)
+        true_kpp_class_argmax = tf.argmax(y_true[..., 4:], -1)
+        # axis=-1 represents the last axis (last element of the array)
 
         """
         Determine the masks
@@ -296,9 +289,11 @@ class SpecialYOLO(object):
         Once the training through warmup batches are done, the  elements in the coord_mask are once again set to their original values.
         This is done so that interest for loss computation is only shown at datapoints where we expect the keypoint coordinates to be.
         """
-        no_kpp_mask = tf.cast((coord_mask < self.coord_scale / 2.0), dtype=float)  # ??
+        no_kpp_mask = tf.cast((coord_mask < self.coord_scale / 2.0), dtype=tf.float32)
+        # ??
         print(no_kpp_mask.shape)
-        seen = seen + 1.0
+        # seen = seen + 1.0
+        seen = 1.0
         # tf.cond is a conditional function that passes first lambda function if tf.less() statement is true, else passes the second lambda function if tf.less() is  false
         # "tf.less(seen, self.warmup_batches+1)":== passes the truth table for seen<self.warmup.batches+1 (i.e if arg_x less than arg_y then true and so on...)
         # warmup_batches is defined below
@@ -316,9 +311,9 @@ class SpecialYOLO(object):
         """
         # tf.reduce_sum adds the elements of arrays passed. As in our case no axis is passed as an argument, the function will return a single int as output
         # syntax below simply gives the length of the respective masks by adding all of their elements and redicing the, to single integer as output
-        nb_coord_kpp = tf.reduce_sum(tf.cast(coord_mask > 0.0), dtype=float)
-        nb_conf_kpp = tf.reduce_sum(tf.cast(conf_mask > 0.0), dtype=float)
-        nb_class_kpp = tf.reduce_sum(tf.cast(class_mask > 0.0), dtype=float)
+        nb_coord_kpp = tf.reduce_sum(tf.cast((coord_mask > 0.0), dtype=tf.float32))
+        nb_conf_kpp = tf.reduce_sum(tf.cast((conf_mask > 0.0), dtype=tf.float32))
+        nb_class_kpp = tf.reduce_sum(tf.cast((class_mask > 0.0), dtype=tf.float32))
         # summing up the elements of the array which are squared element wise with the help of tf.square 1e-6) / 2.
         # (true_kp0_xy-pred_kp0_xy) * coord_mask):== basically computes loss in first part and then confirms the presence by multiplying the mask on the diff
         # tf.square makes the diff in the true and predicted values directionless as direction is of no concern for us
@@ -335,7 +330,7 @@ class SpecialYOLO(object):
             / (nb_coord_kpp + 1e-6)
             / 2.0
         )
-        # direction.scale from .json
+        # direction scale from .json
         loss_conf = (
             tf.reduce_sum(tf.square(true_kpp_conf - pred_kpp_conf) * conf_mask)
             / (nb_conf_kpp + 1e-6)
@@ -360,26 +355,21 @@ class SpecialYOLO(object):
         # tf.less() is the pred; lambda1:true statement passed; lambda2:false statement passed
         loss = tf.cond(
             tf.less(seen, self.warmup_batches + 1),
-            lambda: loss_kp0_xy
-            + loss_alpha
-            + loss_conf
-            + loss_class
-            + 10,  # Adding bias as 10     #bias of 10 is added so that the activation function(leaky relu which limits till 10)is always activated
+            lambda: loss_kp0_xy + loss_alpha + loss_conf + loss_class + 10,
+            # Adding bias as 10     #bias of 10 is added so that the activation function(leaky relu which limits till 10)is always activated
             lambda: loss_kp0_xy + loss_alpha + loss_conf + loss_class,
         )
 
         if self.debug:  # debug puts out an boolean output true/false
             nb_true_kpp = tf.reduce_sum(y_true[..., 3])
             nb_pred_kpp = tf.reduce_sum(
-                tf.cast((true_kpp_conf > 0.5), dtype=float)
-                * tf.cast((pred_kpp_conf > 0.3), dtype=float)
+                (tf.cast((true_kpp_conf > 0.5), dtype=tf.float32))
+                * (tf.cast((pred_kpp_conf > 0.3), dtype=tf.float32))
             )
 
             current_recall = nb_pred_kpp / (nb_true_kpp + 1e-6)
-            # tf.assign_add(ref,add) which is explained in the next line
             total_recall = total_recall + current_recall
-            # it simply updates ref=total_recall and adds value=current_recall to it
-            # now we print all the losses
+
             # loss = tf.Print(
             #     loss, [loss_kp0_xy], message="Loss Keyp0 \t", summarize=1000
             # )
@@ -471,7 +461,8 @@ class SpecialYOLO(object):
 
         self.warmup_batches = warmup_epochs * (
             train_times * len(train_generator) + valid_times * len(valid_generator)
-        )  # declaring the warmup_batches as a function of warmup_epochs
+        )
+        # declaring the warmup_batches as a function of warmup_epochs
 
         ############################################
         # Compile the model
@@ -479,7 +470,8 @@ class SpecialYOLO(object):
 
         optimizer = Adam(
             lr=learning_rate, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0
-        )  # parameters beta1 and beta2 cntrol the decay of the learning rate
+        )
+        # parameters beta1 and beta2 cntrol the decay of the learning rate
         self.model.compile(loss=self.custom_loss, optimizer=optimizer)
 
         ############################################
@@ -514,17 +506,17 @@ class SpecialYOLO(object):
         # Start the training process
         ############################################
 
-        self.model.fit(
+        self.model.fit_generator(
             generator=train_generator,
             steps_per_epoch=len(train_generator) * train_times,
-            epochs=warmup_epochs + nb_epochs,  # 3+30 by default
+            epochs=warmup_epochs + nb_epochs,
             verbose=2 if debug else 1,
             validation_data=valid_generator,
             validation_steps=len(valid_generator) * valid_times,
             callbacks=[early_stop, checkpoint, tensorboard],
-            workers=3,  # formerly 3
+            workers=3,
             max_queue_size=8,
-        )  # 8
+        )
         # use_multiprocessing = False)
 
         ############################################
@@ -544,6 +536,7 @@ class SpecialYOLO(object):
 
         self.predict(image)
         print("test prediction end\n")
+       
         ##### test prediction ende ######################
 
     def predict(self, image):
