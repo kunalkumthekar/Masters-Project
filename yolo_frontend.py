@@ -217,6 +217,7 @@ class SpecialYOLO(object):
         # These two variables used for Visualisation process later on
 
         # seen = tf.Variable(0.0, dtype="float32")
+        seen = 1.0
         # total_recall = tf.Variable(0.0, dtype="float32")
         total_recall = 0.0
 
@@ -293,7 +294,7 @@ class SpecialYOLO(object):
         # ??
         print(no_kpp_mask.shape)
         # seen = seen + 1.0
-        seen = 1.0
+        seen += 1.0
         # tf.cond is a conditional function that passes first lambda function if tf.less() statement is true, else passes the second lambda function if tf.less() is  false
         # "tf.less(seen, self.warmup_batches+1)":== passes the truth table for seen<self.warmup.batches+1 (i.e if arg_x less than arg_y then true and so on...)
         # warmup_batches is defined below
