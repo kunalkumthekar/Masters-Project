@@ -82,7 +82,7 @@ def read_annotations(img_dir, edge_threshold, side_threshold):
                     obj["y0"] = float(vWords[2])
                     # y0
 
-                    angle_alpha = (math.pi) - float(vWords[3])
+                    angle_alpha = float(vWords[3])
                     # alpha_deg = np.rad2deg(angle_alpha)
                     # slope = math.tan(alpha_deg)
                     # length = 10

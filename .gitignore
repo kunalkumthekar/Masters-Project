@@ -26,3 +26,5 @@ Img_264_detected.bmp
 Img_264.bmp
 __pycache__/yolo_frontend.cpython-37.pyc
 __pycache__/yolo_utils.cpython-37.pyc
+yolo_frontend.old
+Img_000273.bmp
