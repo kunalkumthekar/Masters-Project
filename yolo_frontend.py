@@ -496,7 +496,8 @@ class SpecialYOLO(object):
             period=1,
         )
         tensorboard = TensorBoard(
-            log_dir=os.path.expanduser("~/logs/"),
+            # log_dir=os.path.expanduser("~/logs/"),
+            log_dir=os.path.expanduser("D:\\CNN_KV\\Masters-Project\\logs\\"),
             histogram_freq=0,
             # write_batch_performance=True,
             write_graph=True,
@@ -514,7 +515,7 @@ class SpecialYOLO(object):
             verbose=2 if debug else 1,
             validation_data=valid_generator,
             validation_steps=len(valid_generator) * valid_times,
-            callbacks=[early_stop, checkpoint, tensorboard],
+            callbacks=[early_stop, checkpoint,tensorboard],
             workers=3,
             max_queue_size=8,
         )
@@ -528,7 +529,7 @@ class SpecialYOLO(object):
 
         print("test prediction start\n")
         image = cv2.imread(
-            "D:\Master Project\github\kk\Masters-Project\data\shafts\mahen\new\image498.bmp"
+            "D:\\CNN_KV\\Masters-Project\\data\\shafts\\likith\\Shafts_1k_img_with_conf\\test\\Img_000997.bmp"
         )
         # just a sample test image
         image = image[:, :, 0]

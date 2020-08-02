@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     # testein
     args.conf = "yolo_config.json"
-    args.input = "D:\\Master Project\\github\\kk\\Masters-Project\\data\\shafts\\mahen\\new\\Img_261.bmp"
+    args.input = "D:\\CNN_KV\\Masters-Project\\data\\shafts\\likith\\Img_261.bmp"
     args.weights = "shaft.h5"
 
     _main_(args)
