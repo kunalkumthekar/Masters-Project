@@ -89,7 +89,7 @@ class SpecialYOLO(object):
             num_layer += 1
 
         # stack 3
-        for i in range(0, 10):
+        for i in range(0, 20):
             x = Conv2D(
                 64,
                 (3, 3),
