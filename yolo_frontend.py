@@ -472,7 +472,7 @@ class SpecialYOLO(object):
         optimizer = Adam(
             lr=learning_rate, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0
         )
-        # parameters beta1 and beta2 cntrol the decay of the learning rate
+        # parameters beta1 and beta2 cntrol the decay of the learning rate # BS, not actually.
         self.model.compile(loss=self.custom_loss, optimizer=optimizer)
 
         ############################################
