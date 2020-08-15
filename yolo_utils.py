@@ -142,3 +142,15 @@ def _softmax(x, axis=-1, t=-100.0):
     e_x = np.exp(x)
 
     return e_x / e_x.sum(axis, keepdims=True)
+
+def annot_on_image(imageLoc,objectLis):
+    image_path = imageLoc
+    image = cv2.imread(image_path)
+    for shaft in objectLis:
+        x0_floored = int(np.floor(shaft["x0"]))
+        y0_floored = int(np.floor(shaft["y0"]))
+        x1_floored = int(np.floor(shaft["x1"]))
+        y1_floored = int(np.floor(shaft["y1"]))
+        cv2.circle(image, (x0_floored, y0_floored), 4, (0, 0, 255), 1)
+        cv2.line(image, (x0_floored, y0_floored), (x1_floored,y1_floored), (0, 0, 255), 1)
+    cv2.imwrite(image_path[:-4] + "_detected_test" +image_path[-4:], image)
