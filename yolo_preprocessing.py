@@ -78,18 +78,8 @@ def read_annotations(img_dir, edge_threshold, side_threshold):
 
                     # two keypoints which give pose (x0, y0) and direction (x1, y1) in pixel coordinates, all following coordinates are from object polygon and thus ignored
                     obj["x0"] = float(vWords[1])
-                    # x0
                     obj["y0"] = float(vWords[2])
-                    # y0
-
                     angle_alpha = float(vWords[3])
-                    # alpha_deg = np.rad2deg(angle_alpha)
-                    # slope = math.tan(alpha_deg)
-                    # length = 10
-
-                    # obj["x1"] = obj["x0"] + math.sqrt(length ** 2 / (1 + slope ** 2))
-                    # obj["y1"] = (slope * (obj["x1"] - obj["x0"])) + obj["y0"]
-
                     obj["x1"] = float(obj["x0"] - 20.0 * math.cos(angle_alpha))
                     obj["y1"] = float(obj["y0"] - 20.0 * math.sin(angle_alpha))
 
